@@ -32,16 +32,15 @@ jobs:
       - name: Build extensions
         run: pnpm build
 
-      - name: Create zip files
+      - name: Rename packages with version
         run: |
-          cd dist
-          zip -r ../slite-ime-fix-chrome-${{ github.ref_name }}.zip chrome/
-          zip -r ../slite-ime-fix-firefox-${{ github.ref_name }}.zip firefox/
+          mv dist/slite-ime-fix-chrome.zip dist/slite-ime-fix-chrome-${{ github.ref_name }}.zip
+          mv dist/slite-ime-fix-firefox.xpi dist/slite-ime-fix-firefox-${{ github.ref_name }}.xpi
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            slite-ime-fix-chrome-${{ github.ref_name }}.zip
-            slite-ime-fix-firefox-${{ github.ref_name }}.zip
+            dist/slite-ime-fix-chrome-${{ github.ref_name }}.zip
+            dist/slite-ime-fix-firefox-${{ github.ref_name }}.xpi
           generate_release_notes: true
