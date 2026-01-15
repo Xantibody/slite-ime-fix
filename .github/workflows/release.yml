@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run tests
+        run: pnpm test:run
+
+      - name: Build extensions
+        run: pnpm build
+
+      - name: Create zip files
+        run: |
+          cd dist
+          zip -r ../slite-ime-fix-chrome-${{ github.ref_name }}.zip chrome/
+          zip -r ../slite-ime-fix-firefox-${{ github.ref_name }}.zip firefox/
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            slite-ime-fix-chrome-${{ github.ref_name }}.zip
+            slite-ime-fix-firefox-${{ github.ref_name }}.zip
+          generate_release_notes: true
