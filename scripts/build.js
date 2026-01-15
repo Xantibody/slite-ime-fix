@@ -1,12 +1,10 @@
 // Build script: Generate inject.js from src/ime-fix.js
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync } from "fs";
 
-const imeFix = readFileSync('src/ime-fix.js', 'utf-8');
+const imeFix = readFileSync("src/ime-fix.js", "utf-8");
 
 // Remove export statements for browser usage
-const browserCode = imeFix
-  .replace(/^export /gm, '')
-  .trim();
+const browserCode = imeFix.replace(/^export /gm, "").trim();
 
 const output = `// Slite Japanese IME Fix
 // Auto-generated from src/ime-fix.js
@@ -27,5 +25,5 @@ ${browserCode}
 })();
 `;
 
-writeFileSync('inject.js', output);
-console.log('Built inject.js');
+writeFileSync("inject.js", output);
+console.log("Built inject.js");

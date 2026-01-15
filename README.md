@@ -11,6 +11,7 @@ When using Japanese IME (Input Method Editor) in Slite, composed text appears du
 ### From source (Developer mode)
 
 1. Clone this repository
+
    ```bash
    git clone https://github.com/Xantibody/slite-ime-fix.git
    ```

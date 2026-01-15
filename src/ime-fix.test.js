@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { createIMEFix, getEditorFromRefs } from './ime-fix.js';
+import { describe, it, expect, beforeEach } from "vitest";
+import { createIMEFix, getEditorFromRefs } from "./ime-fix.js";
 
-describe('createIMEFix', () => {
+describe("createIMEFix", () => {
   let mockEditor;
   let imeFix;
 
@@ -12,8 +12,8 @@ describe('createIMEFix', () => {
     imeFix = createIMEFix(() => mockEditor);
   });
 
-  describe('handleCompositionStart', () => {
-    it('should save marks and set editor.marks to null', () => {
+  describe("handleCompositionStart", () => {
+    it("should save marks and set editor.marks to null", () => {
       const originalMarks = mockEditor.marks;
 
       imeFix.handleCompositionStart();
@@ -23,7 +23,7 @@ describe('createIMEFix', () => {
       expect(imeFix.getState().isComposing).toBe(true);
     });
 
-    it('should do nothing if editor is null', () => {
+    it("should do nothing if editor is null", () => {
       const nullEditorFix = createIMEFix(() => null);
 
       nullEditorFix.handleCompositionStart();
@@ -33,8 +33,8 @@ describe('createIMEFix', () => {
     });
   });
 
-  describe('handleCompositionEnd', () => {
-    it('should restore saved marks', () => {
+  describe("handleCompositionEnd", () => {
+    it("should restore saved marks", () => {
       const originalMarks = mockEditor.marks;
 
       imeFix.handleCompositionStart();
@@ -47,13 +47,13 @@ describe('createIMEFix', () => {
       expect(imeFix.getState().isComposing).toBe(false);
     });
 
-    it('should do nothing if no saved marks', () => {
+    it("should do nothing if no saved marks", () => {
       imeFix.handleCompositionEnd();
 
       expect(mockEditor.marks).toEqual({ bold: true, italic: true });
     });
 
-    it('should do nothing if editor is null', () => {
+    it("should do nothing if editor is null", () => {
       const nullEditorFix = createIMEFix(() => null);
 
       nullEditorFix.handleCompositionEnd();
@@ -62,8 +62,8 @@ describe('createIMEFix', () => {
     });
   });
 
-  describe('full IME composition cycle', () => {
-    it('should handle multiple composition cycles', () => {
+  describe("full IME composition cycle", () => {
+    it("should handle multiple composition cycles", () => {
       const originalMarks = { bold: true };
       mockEditor.marks = originalMarks;
 
@@ -83,34 +83,38 @@ describe('createIMEFix', () => {
   });
 });
 
-describe('getEditorFromRefs', () => {
-  it('should return null if editorRefs is null', () => {
+describe("getEditorFromRefs", () => {
+  it("should return null if editorRefs is null", () => {
     expect(getEditorFromRefs(null)).toBe(null);
   });
 
-  it('should return null if editorRefs is empty', () => {
+  it("should return null if editorRefs is empty", () => {
     const emptySet = new Set();
     expect(getEditorFromRefs(emptySet)).toBe(null);
   });
 
-  it('should return null if ref.deref is not a function', () => {
+  it("should return null if ref.deref is not a function", () => {
     const refs = new Set([{ ref: {} }]);
     expect(getEditorFromRefs(refs)).toBe(null);
   });
 
-  it('should return editor from WeakRef', () => {
+  it("should return editor from WeakRef", () => {
     const mockEditor = { marks: {} };
-    const refs = new Set([{
-      ref: { deref: () => mockEditor },
-    }]);
+    const refs = new Set([
+      {
+        ref: { deref: () => mockEditor },
+      },
+    ]);
 
     expect(getEditorFromRefs(refs)).toBe(mockEditor);
   });
 
-  it('should return null if WeakRef is garbage collected', () => {
-    const refs = new Set([{
-      ref: { deref: () => undefined },
-    }]);
+  it("should return null if WeakRef is garbage collected", () => {
+    const refs = new Set([
+      {
+        ref: { deref: () => undefined },
+      },
+    ]);
 
     expect(getEditorFromRefs(refs)).toBe(undefined);
   });

@@ -43,7 +43,7 @@ export function getEditorFromRefs(editorRefs) {
   if (refs.length === 0) return null;
 
   const ref = refs[0].ref;
-  if (!ref || typeof ref.deref !== 'function') return null;
+  if (!ref || typeof ref.deref !== "function") return null;
 
   return ref.deref();
 }

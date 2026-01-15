@@ -6,7 +6,9 @@
   "scripts": {
     "test": "vitest",
     "test:run": "vitest run",
-    "build": "node scripts/build.js"
+    "build": "node scripts/build.js",
+    "lint": "oxlint",
+    "fmt": "nix fmt"
   },
   "devDependencies": {
     "vitest": "^2.0.0"
