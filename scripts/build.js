@@ -20,8 +20,8 @@ ${browserCode}
   const getEditor = () => getEditorFromRefs(window.__EDITOR_REFS__);
   const imeFix = createIMEFix(getEditor);
 
-  document.addEventListener("compositionstart", imeFix.handleCompositionStart, true);
-  document.addEventListener("compositionend", imeFix.handleCompositionEnd, true);
+  document.addEventListener("compositionstart", () => imeFix.handleCompositionStart(), true);
+  document.addEventListener("compositionend", () => imeFix.handleCompositionEnd(), true);
 
   console.log("[Slite IME Fix] Loaded");
 })();
