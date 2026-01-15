@@ -29,6 +29,11 @@ describe("generateChromeManifest", () => {
     expect(manifest.permissions).toContain("declarativeContent");
   });
 
+  it("should include storage permission", () => {
+    const manifest = generateChromeManifest();
+    expect(manifest.permissions).toContain("storage");
+  });
+
   it("should use service_worker for background", () => {
     const manifest = generateChromeManifest();
     expect(manifest.background).toEqual({
@@ -53,6 +58,11 @@ describe("generateFirefoxManifest", () => {
   it("should include tabs permission", () => {
     const manifest = generateFirefoxManifest();
     expect(manifest.permissions).toContain("tabs");
+  });
+
+  it("should include storage permission", () => {
+    const manifest = generateFirefoxManifest();
+    expect(manifest.permissions).toContain("storage");
   });
 
   it("should use scripts array for background", () => {

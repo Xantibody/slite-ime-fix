@@ -13,6 +13,7 @@ export const BASE_MANIFEST = {
   },
   action: {
     default_title: "Slite IME Fix",
+    default_popup: "popup.html",
     default_icon: {
       16: "icons/icon-16.png",
       48: "icons/icon-48.png",
@@ -37,7 +38,7 @@ export const BASE_MANIFEST = {
 export function generateChromeManifest() {
   return {
     ...BASE_MANIFEST,
-    permissions: ["declarativeContent"],
+    permissions: ["declarativeContent", "storage"],
     background: {
       service_worker: "background.js",
     },
@@ -47,7 +48,7 @@ export function generateChromeManifest() {
 export function generateFirefoxManifest() {
   return {
     ...BASE_MANIFEST,
-    permissions: ["tabs"],
+    permissions: ["tabs", "storage"],
     background: {
       scripts: ["background.js"],
     },

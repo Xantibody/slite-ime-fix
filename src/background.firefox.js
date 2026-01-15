@@ -28,3 +28,6 @@ browser.tabs.query({}).then((tabs) => {
     updateIcon(tab.id, tab.url);
   }
 });
+
+// Initialize storage
+browser.storage.local.set({ emacsKeybindEnabled: false });

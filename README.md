@@ -10,6 +10,23 @@ When using Japanese IME (Input Method Editor) in Slite, composed text appears du
 
 ## Installation
 
+### Chrome / Edge
+
+1. Download `slite-ime-fix-chrome-vX.X.X.zip` from [Releases](https://github.com/Xantibody/slite-ime-fix/releases)
+2. Extract the zip file
+3. Open `chrome://extensions/` (or `edge://extensions/`)
+4. Enable "Developer mode" (toggle in top-right corner)
+5. Click "Load unpacked"
+6. Select the extracted folder
+
+### Firefox
+
+1. Download `slite-ime-fix-firefox-vX.X.X.xpi` from [Releases](https://github.com/Xantibody/slite-ime-fix/releases)
+2. Open Firefox and drag the `.xpi` file into the browser window
+3. Click "Add" when prompted
+
+> Note: Firefox may warn about unsigned extensions. For permanent installation without warnings, the extension needs to be signed by Mozilla or installed in Firefox Developer Edition with `xpinstall.signatures.required` set to `false`.
+
 ### Build from source
 
 ```bash
@@ -21,34 +38,38 @@ pnpm build
 
 This generates:
 
-- `dist/chrome/` - Chrome/Edge extension
-- `dist/firefox/` - Firefox extension
+- `dist/slite-ime-fix-chrome.zip` - Chrome/Edge extension
+- `dist/slite-ime-fix-firefox.xpi` - Firefox extension
+- `dist/chrome/` - Unpacked Chrome extension (for development)
+- `dist/firefox/` - Unpacked Firefox extension (for development)
 
-### Chrome / Edge
+## Features
 
-1. Open `chrome://extensions/` (or `edge://extensions/`)
-2. Enable "Developer mode" (toggle in top-right corner)
-3. Click "Load unpacked"
-4. Select the `dist/chrome/` directory
-
-### Firefox
-
-1. Open `about:debugging#/runtime/this-firefox`
-2. Click "Load Temporary Add-on..."
-3. Select any file in the `dist/firefox/` directory (e.g., `manifest.json`)
-
-> Note: Temporary add-ons are removed when Firefox restarts. For permanent installation, the extension needs to be signed by Mozilla.
-
-## How it works
+### IME Fix
 
 The extension intercepts `compositionstart` and `compositionend` events to temporarily clear and restore editor marks, preventing the double-display issue caused by Slate.js editor's mark handling during IME composition.
+
+### Emacs Keybindings (Optional)
+
+Click the extension icon to toggle Emacs-style cursor movement:
+
+| Shortcut | Action                    |
+| -------- | ------------------------- |
+| Ctrl+F   | Move forward (right)      |
+| Ctrl+B   | Move backward (left)      |
+| Ctrl+N   | Move to next line         |
+| Ctrl+P   | Move to previous line     |
+| Ctrl+A   | Move to beginning of line |
+| Ctrl+E   | Move to end of line       |
 
 ## Files
 
 - `src/ime-fix.js` - Core IME fix logic
+- `src/emacs-keybind.js` - Emacs keybinding logic
 - `src/build/manifest.js` - Manifest generation for Chrome/Firefox
 - `src/background.chrome.js` - Chrome background script (declarativeContent API)
 - `src/background.firefox.js` - Firefox background script (tabs API)
+- `src/popup.html` / `src/popup.js` - Toggle UI for Emacs keybindings
 - `content-script.js` - Injects the fix script into page context
 - `scripts/build.js` - Build script to generate dist/
 
