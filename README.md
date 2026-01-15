@@ -1,6 +1,8 @@
 # Slite Japanese IME Fix
 
-Chrome/Edge extension that fixes the Japanese IME double-display bug in Slite editor.
+Browser extension that fixes the Japanese IME double-display bug in Slite editor.
+
+Supports **Chrome**, **Edge**, and **Firefox**.
 
 ## Problem
 
@@ -8,21 +10,34 @@ When using Japanese IME (Input Method Editor) in Slite, composed text appears du
 
 ## Installation
 
-### From source (Developer mode)
+### Build from source
 
-1. Clone this repository
+```bash
+git clone https://github.com/Xantibody/slite-ime-fix.git
+cd slite-ime-fix
+pnpm install
+pnpm build
+```
 
-   ```bash
-   git clone https://github.com/Xantibody/slite-ime-fix.git
-   ```
+This generates:
 
-2. Open Chrome/Edge and navigate to `chrome://extensions/`
+- `dist/chrome/` - Chrome/Edge extension
+- `dist/firefox/` - Firefox extension
 
-3. Enable "Developer mode" (toggle in top-right corner)
+### Chrome / Edge
 
-4. Click "Load unpacked" and select the cloned directory
+1. Open `chrome://extensions/` (or `edge://extensions/`)
+2. Enable "Developer mode" (toggle in top-right corner)
+3. Click "Load unpacked"
+4. Select the `dist/chrome/` directory
 
-5. The extension will be active on `*.slite.com`
+### Firefox
+
+1. Open `about:debugging#/runtime/this-firefox`
+2. Click "Load Temporary Add-on..."
+3. Select any file in the `dist/firefox/` directory (e.g., `manifest.json`)
+
+> Note: Temporary add-ons are removed when Firefox restarts. For permanent installation, the extension needs to be signed by Mozilla.
 
 ## How it works
 
@@ -30,9 +45,12 @@ The extension intercepts `compositionstart` and `compositionend` events to tempo
 
 ## Files
 
-- `manifest.json` - Extension manifest (Manifest V3)
+- `src/ime-fix.js` - Core IME fix logic
+- `src/build/manifest.js` - Manifest generation for Chrome/Firefox
+- `src/background.chrome.js` - Chrome background script (declarativeContent API)
+- `src/background.firefox.js` - Firefox background script (tabs API)
 - `content-script.js` - Injects the fix script into page context
-- `inject.js` - Core IME fix logic
+- `scripts/build.js` - Build script to generate dist/
 
 ## Technical Details
 
