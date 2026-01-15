@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Slite Japanese IME Fix",
+  "version": "1.0.0",
+  "description": "Fixes Japanese IME double-display issue in Slite editor",
+  "permissions": [],
+  "host_permissions": [
+    "https://*.slite.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://*.slite.com/*"],
+      "js": ["content-script.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["inject.js"],
+      "matches": ["https://*.slite.com/*"]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "slite-ime-fix",
+  "version": "1.0.0",
+  "description": "Chrome extension to fix Japanese IME double-display issue in Slite",
+  "type": "module",
+  "scripts": {
+    "test": "vitest",
+    "test:run": "vitest run",
+    "build": "node scripts/build.js"
+  },
+  "devDependencies": {
+    "vitest": "^2.0.0"
+  }
+}
