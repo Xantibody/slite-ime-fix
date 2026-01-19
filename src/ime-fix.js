@@ -1,5 +1,8 @@
 // Slite Japanese IME Fix - Core Logic
 
+// Zero-width no-break space (used by Slate as placeholder content)
+export const ZWNBSP = "\uFEFF";
+
 export function createIMEFix(getEditorFn) {
   let savedMarks = null;
   let isComposing = false;
@@ -33,6 +36,22 @@ export function createIMEFix(getEditorFn) {
     handleCompositionEnd,
     getState,
   };
+}
+
+/**
+ * Clean up mark-placeholder elements after composition ends.
+ *
+ * Slate.js sometimes leaves committed text in mark-placeholder elements,
+ * causing duplicate text display. This function resets placeholder content
+ * to just the zero-width character.
+ */
+export function cleanupMarkPlaceholders() {
+  const placeholders = document.querySelectorAll("[data-slate-mark-placeholder]");
+  placeholders.forEach((p) => {
+    if (p.textContent && p.textContent !== ZWNBSP) {
+      p.textContent = ZWNBSP;
+    }
+  });
 }
 
 export function getEditorFromRefs(editorRefs) {

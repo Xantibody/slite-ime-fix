@@ -29,7 +29,10 @@ ${emacsKeybindCode}
   const imeFix = createIMEFix(getEditor);
 
   document.addEventListener("compositionstart", () => imeFix.handleCompositionStart(), true);
-  document.addEventListener("compositionend", () => imeFix.handleCompositionEnd(), true);
+  document.addEventListener("compositionend", () => {
+    imeFix.handleCompositionEnd();
+    requestAnimationFrame(() => cleanupMarkPlaceholders());
+  }, true);
 
   // === Initialize Emacs Keybind ===
   let emacsKeybindEnabled = false;
