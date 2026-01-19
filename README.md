@@ -77,18 +77,24 @@ Click the extension icon to toggle Emacs-style cursor movement:
 
 ### Root Cause
 
-Slite uses Slate.js as its rich text editor. When `editor.marks` contains formatting information (bold, italic, etc.) during IME composition, Slate applies these marks to both the composing text and the committed text, causing double-display.
+Slite uses Slate.js as its rich text editor. There are two sources of duplicate text display during IME composition:
 
-This happens because Slate's `insertText` operation reads `editor.marks` synchronously, but IME composition events and text insertion occur asynchronously, leading to marks being applied twice.
+1. **Marks issue**: When `editor.marks` contains formatting information (bold, italic, etc.) during IME composition, Slate applies these marks to both the composing text and the committed text.
+
+2. **Mark-placeholder issue**: Slate uses `data-slate-mark-placeholder` elements to show where marks will be applied. Sometimes committed text remains in these placeholder elements after composition ends, causing duplicate display.
 
 ### Solution
 
-This extension temporarily clears `editor.marks` during IME composition:
+This extension applies two fixes:
 
-1. `compositionstart`: Save `editor.marks` and set it to `null`
-2. `compositionend`: Restore the saved marks
+1. **Marks handling**: Temporarily clears `editor.marks` during IME composition
+   - `compositionstart`: Save `editor.marks` and set it to `null`
+   - `compositionend`: Restore the saved marks
 
-This prevents Slate from applying marks during composition while preserving the user's intended formatting.
+2. **Placeholder cleanup**: After composition ends, cleans up any text remaining in mark-placeholder elements
+   - Resets placeholder content to the zero-width no-break space (ZWNBSP) character
+
+This prevents both types of duplicate display while preserving the user's intended formatting.
 
 ## License
 
