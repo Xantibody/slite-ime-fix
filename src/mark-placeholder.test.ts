@@ -200,6 +200,27 @@ describe(createPlaceholderGuard, () => {
     expect(placeholder.textContent).toBe(`${ZWNBSP}へんかんちゅう`);
   });
 
+  it("should repair residue that already exists when start() is called", () => {
+    // The extension can load into a page that is already showing the duplicate,
+    // and no mutation will follow to trigger the observer.
+    const placeholder = renderBrokenBlock();
+    guard = createPlaceholderGuard({ isComposing: () => false });
+
+    guard.start();
+
+    expect(placeholder.textContent).toBe(ZWNBSP);
+    expect(visibleText()).toBe("大変だ体現");
+  });
+
+  it("should leave an existing placeholder alone if the IME is composing at start()", () => {
+    const placeholder = renderBrokenBlock();
+    guard = createPlaceholderGuard({ isComposing: () => true });
+
+    guard.start();
+
+    expect(placeholder.textContent).toBe(`${ZWNBSP}だ体現`);
+  });
+
   it("should catch placeholders added to the DOM after start()", async () => {
     guard = createPlaceholderGuard({ isComposing: () => false });
     guard.start();

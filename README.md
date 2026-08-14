@@ -64,14 +64,37 @@ Click the extension icon to toggle Emacs-style cursor movement:
 
 ## Files
 
-- `src/ime-fix.js` - Core IME fix logic
-- `src/emacs-keybind.js` - Emacs keybinding logic
-- `src/build/manifest.js` - Manifest generation for Chrome/Firefox
-- `src/background.chrome.js` - Chrome background script (declarativeContent API)
-- `src/background.firefox.js` - Firefox background script (tabs API)
-- `src/popup.html` / `src/popup.js` - Toggle UI for Emacs keybindings
-- `content-script.js` - Injects the fix script into page context
-- `scripts/build.js` - Build script to generate dist/
+- `src/ime-fix.ts` - Composition tracking and mark parking
+- `src/mark-placeholder.ts` - Placeholder repair and the MutationObserver guard
+- `src/emacs-keybind.ts` - Emacs keybinding logic
+- `src/inject.ts` - Page-context entry point that wires the above together
+- `src/content-script.ts` - Injects `inject.js` into the page context
+- `src/build/manifest.ts` - Manifest generation for Chrome/Firefox
+- `src/background.chrome.ts` - Chrome background script (declarativeContent API)
+- `src/background.firefox.ts` - Firefox background script (tabs API)
+- `src/popup.html` / `src/popup.ts` - Toggle UI for Emacs keybindings
+- `scripts/build.ts` - esbuild bundling into dist/
+- `e2e/` - Browser-driven verification (see [Development](#development))
+
+## Development
+
+```bash
+pnpm test:run     # unit tests (vitest + jsdom)
+pnpm typecheck    # tsc --noEmit (TypeScript 7 / typescript-go)
+pnpm lint         # oxlint, every category set to error
+pnpm check        # all three of the above
+pnpm e2e          # drives the built extension in a real browser
+nix fmt           # oxfmt + nixfmt via treefmt
+```
+
+`pnpm e2e` needs `agent-browser`, which the Nix devShell provides (`nix develop`).
+It loads `e2e/slate-ime-fixture.html` twice — once without the extension, to
+confirm the bug still reproduces, and once with the built `dist/chrome/inject.js`
+— and asserts on both outcomes.
+
+Lint runs with `correctness`, `suspicious`, `pedantic`, `perf`, `style`,
+`restriction` and `nursery` all set to `error`. Every disabled rule in
+`.oxlintrc.json` carries a comment explaining why.
 
 ## Technical Details
 
@@ -91,8 +114,22 @@ This extension applies two fixes:
    - `compositionstart`: Save `editor.marks` and set it to `null`
    - `compositionend`: Restore the saved marks
 
-2. **Placeholder cleanup**: After composition ends, cleans up any text remaining in mark-placeholder elements
-   - Resets placeholder content to the zero-width no-break space (ZWNBSP) character
+   This stops Slate from rendering a placeholder in the first place — but it
+   cannot help with a placeholder that was already in the DOM when composition
+   started.
+
+2. **Placeholder guard**: A `MutationObserver` enforces the placeholder's own
+   invariant — an element declared `data-slate-length="0"` may hold nothing but
+   the zero-width no-break space (ZWNBSP).
+   - Text appearing in a placeholder outside of composition is removed
+     immediately, which covers the re-renders React performs a frame or more
+     after `compositionend`
+   - Text during composition is left alone, because there it is legitimate
+   - A page that already shows the duplicate when the extension loads is
+     repaired on startup
+   - The repair mutates the existing text node instead of replacing it: Slate
+     holds a reference to that node and re-reads the DOM if it disappears. The
+     caret is restored when it was parked inside
 
 This prevents both types of duplicate display while preserving the user's intended formatting.
 

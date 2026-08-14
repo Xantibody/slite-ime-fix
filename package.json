@@ -11,6 +11,7 @@
     "build:firefox": "node --experimental-strip-types scripts/build.ts firefox",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint",
+    "e2e": "pnpm build && node --experimental-strip-types e2e/run.ts",
     "check": "pnpm typecheck && pnpm lint && pnpm test:run",
     "fmt": "nix fmt"
   },

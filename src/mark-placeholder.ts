@@ -131,6 +131,12 @@ export function createPlaceholderGuard(options: PlaceholderGuardOptions): Placeh
       characterData: true,
       attributeFilter: ["data-slate-mark-placeholder"],
     });
+
+    // The page may already be showing a duplicate when the extension loads —
+    // nothing would mutate afterwards to wake the observer up.
+    if (!options.isComposing()) {
+      flush();
+    }
   }
 
   function stop(): void {
