@@ -1,0 +1,102 @@
+// Manifest generation - pure functions (no I/O)
+
+export interface IconSet {
+  readonly 16: string;
+  readonly 48: string;
+  readonly 128: string;
+}
+
+export interface BaseManifest {
+  readonly manifest_version: 3;
+  readonly name: string;
+  readonly version: string;
+  readonly description: string;
+  readonly host_permissions: readonly string[];
+  readonly icons: IconSet;
+  readonly action: {
+    readonly default_title: string;
+    readonly default_popup: string;
+    readonly default_icon: IconSet;
+  };
+  readonly content_scripts: readonly {
+    readonly matches: readonly string[];
+    readonly js: readonly string[];
+    readonly run_at: "document_start";
+  }[];
+  readonly web_accessible_resources: readonly {
+    readonly resources: readonly string[];
+    readonly matches: readonly string[];
+  }[];
+}
+
+export interface ChromeManifest extends BaseManifest {
+  readonly permissions: readonly string[];
+  readonly background: { readonly service_worker: string };
+}
+
+export interface FirefoxManifest extends BaseManifest {
+  readonly permissions: readonly string[];
+  readonly background: { readonly scripts: readonly string[] };
+  readonly browser_specific_settings: {
+    readonly gecko: { readonly id: string; readonly strict_min_version: string };
+  };
+}
+
+const ICONS: IconSet = {
+  128: "icons/icon-128.png",
+  16: "icons/icon-16.png",
+  48: "icons/icon-48.png",
+};
+
+export const BASE_MANIFEST: BaseManifest = {
+  action: {
+    default_icon: ICONS,
+    default_popup: "popup.html",
+    default_title: "Slite IME Fix",
+  },
+  content_scripts: [
+    {
+      matches: ["https://*.slite.com/*"],
+      js: ["content-script.js"],
+      run_at: "document_start",
+    },
+  ],
+  description: "Fixes Japanese IME double-display issue in Slite editor",
+  host_permissions: ["https://*.slite.com/*"],
+  icons: ICONS,
+  manifest_version: 3,
+  name: "Slite Japanese IME Fix",
+  version: "1.0.0",
+  web_accessible_resources: [
+    {
+      resources: ["inject.js"],
+      matches: ["https://*.slite.com/*"],
+    },
+  ],
+};
+
+export function generateChromeManifest(): ChromeManifest {
+  return {
+    ...BASE_MANIFEST,
+    background: {
+      service_worker: "background.js",
+    },
+    permissions: ["declarativeContent", "storage"],
+  };
+}
+
+export function generateFirefoxManifest(): FirefoxManifest {
+  return {
+    ...BASE_MANIFEST,
+    background: {
+      scripts: ["background.js"],
+    },
+    browser_specific_settings: {
+      gecko: {
+        id: "slite-ime-fix@example.com",
+        strict_min_version: "109.0",
+      },
+    },
+    permissions: ["tabs", "storage"],
+  };
+}
