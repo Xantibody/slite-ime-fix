@@ -1,8 +1,5 @@
 // Slite Japanese IME Fix - Core Logic
 
-/** Zero-width no-break space (used by Slate as placeholder content) */
-export const ZWNBSP = "﻿";
-
 /** The subset of the Slate editor instance this extension touches. */
 export interface SlateEditor {
   marks: Record<string, unknown> | null;
@@ -25,24 +22,29 @@ export function createIMEFix(getEditorFn: EditorGetter): IMEFix {
   let savedMarks: Record<string, unknown> | null = null;
   let isComposing = false;
 
+  // The composition flag is tracked even when the editor cannot be reached:
+  // the placeholder guard relies on it to know when text inside a placeholder
+  // is legitimate, and that must stay correct regardless of Slate's internals.
   function handleCompositionStart(): void {
+    isComposing = true;
+
     const editor = getEditorFn();
     if (!editor) {
       return;
     }
 
-    isComposing = true;
     savedMarks = editor.marks;
     editor.marks = null;
   }
 
   function handleCompositionEnd(): void {
+    isComposing = false;
+
     const editor = getEditorFn();
     if (!editor) {
       return;
     }
 
-    isComposing = false;
     if (savedMarks !== null) {
       editor.marks = savedMarks;
       savedMarks = null;
@@ -58,22 +60,6 @@ export function createIMEFix(getEditorFn: EditorGetter): IMEFix {
     handleCompositionEnd,
     getState,
   };
-}
-
-/**
- * Clean up mark-placeholder elements after composition ends.
- *
- * Slate.js sometimes leaves committed text in mark-placeholder elements,
- * causing duplicate text display. This function resets placeholder content
- * to just the zero-width character.
- */
-export function cleanupMarkPlaceholders(): void {
-  const placeholders = document.querySelectorAll("[data-slate-mark-placeholder]");
-  for (const placeholder of placeholders) {
-    if (placeholder.textContent !== null && placeholder.textContent !== ZWNBSP) {
-      placeholder.textContent = ZWNBSP;
-    }
-  }
 }
 
 /** A `WeakRef`-like holder, as used by Slate's internal editor registry. */

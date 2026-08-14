@@ -1,8 +1,9 @@
 // Slite Japanese IME Fix - page context entry point
 import { mapToKey, shouldIntercept } from "./emacs-keybind.ts";
 import type { MappedKey } from "./emacs-keybind.ts";
-import { cleanupMarkPlaceholders, createIMEFix, getEditorFromRefs } from "./ime-fix.ts";
+import { createIMEFix, getEditorFromRefs } from "./ime-fix.ts";
 import type { EditorRefEntry } from "./ime-fix.ts";
+import { createPlaceholderGuard } from "./mark-placeholder.ts";
 import {
   EMACS_KEYBIND_ATTRIBUTE,
   EMACS_KEYBIND_EVENT,
@@ -24,6 +25,14 @@ function log(...args: readonly unknown[]): void {
 // === IME Fix ===
 const imeFix = createIMEFix(() => getEditorFromRefs(slateGlobal.__EDITOR_REFS__));
 
+// Two layers guard against the duplicate: clearing marks stops the placeholder
+// from being rendered in the first place, and the guard repairs any placeholder
+// that Slate re-renders with committed text once composition is over.
+const placeholderGuard = createPlaceholderGuard({
+  isComposing: () => imeFix.getState().isComposing,
+});
+placeholderGuard.start();
+
 document.addEventListener(
   "compositionstart",
   () => {
@@ -36,8 +45,9 @@ document.addEventListener(
   "compositionend",
   () => {
     imeFix.handleCompositionEnd();
+    placeholderGuard.flush();
     requestAnimationFrame(() => {
-      cleanupMarkPlaceholders();
+      placeholderGuard.flush();
     });
   },
   true,

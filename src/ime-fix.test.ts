@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { cleanupMarkPlaceholders, createIMEFix, getEditorFromRefs, ZWNBSP } from "./ime-fix.ts";
+import { createIMEFix, getEditorFromRefs } from "./ime-fix.ts";
 import type { EditorRefEntry, IMEFix, SlateEditor } from "./ime-fix.ts";
 
 describe(createIMEFix, () => {
@@ -22,12 +22,12 @@ describe(createIMEFix, () => {
       expect(imeFix.getState().isComposing).toBe(true);
     });
 
-    it("should do nothing if editor is null", () => {
+    it("should still record that composition started when the editor is unreachable", () => {
       const nullEditorFix = createIMEFix(() => null);
 
       nullEditorFix.handleCompositionStart();
 
-      expect(nullEditorFix.getState().isComposing).toBe(false);
+      expect(nullEditorFix.getState().isComposing).toBe(true);
       expect(nullEditorFix.getState().savedMarks).toBeNull();
     });
   });
@@ -52,9 +52,10 @@ describe(createIMEFix, () => {
       expect(mockEditor.marks).toStrictEqual({ bold: true, italic: true });
     });
 
-    it("should do nothing if editor is null", () => {
+    it("should clear the composition flag even when the editor is unreachable", () => {
       const nullEditorFix = createIMEFix(() => null);
 
+      nullEditorFix.handleCompositionStart();
       nullEditorFix.handleCompositionEnd();
 
       expect(nullEditorFix.getState().isComposing).toBe(false);
@@ -106,72 +107,5 @@ describe(getEditorFromRefs, () => {
     const refs = new Set([{ ref: { deref: (): undefined => undefined } }]);
 
     expect(getEditorFromRefs(refs)).toBeNull();
-  });
-});
-
-function addPlaceholder(text: string): HTMLElement {
-  const placeholder = document.createElement("span");
-  placeholder.dataset["slateMarkPlaceholder"] = "true";
-  placeholder.textContent = text;
-  document.body.append(placeholder);
-
-  return placeholder;
-}
-
-describe(cleanupMarkPlaceholders, () => {
-  beforeEach(() => {
-    document.body.replaceChildren();
-  });
-
-  it("should reset placeholder content to ZWNBSP if text remains", () => {
-    const placeholder = addPlaceholder(`${ZWNBSP}残ったテキスト`);
-
-    cleanupMarkPlaceholders();
-
-    expect(placeholder.textContent).toBe(ZWNBSP);
-  });
-
-  it("should not modify placeholder if content is already ZWNBSP", () => {
-    const placeholder = addPlaceholder(ZWNBSP);
-
-    cleanupMarkPlaceholders();
-
-    expect(placeholder.textContent).toBe(ZWNBSP);
-  });
-
-  it("should handle multiple placeholders", () => {
-    const first = addPlaceholder(`${ZWNBSP}テスト1`);
-    const second = addPlaceholder(ZWNBSP);
-    const third = addPlaceholder(`${ZWNBSP}テスト2`);
-
-    cleanupMarkPlaceholders();
-
-    expect(first.textContent).toBe(ZWNBSP);
-    expect(second.textContent).toBe(ZWNBSP);
-    expect(third.textContent).toBe(ZWNBSP);
-  });
-
-  it("should handle empty placeholder list", () => {
-    expect(() => {
-      cleanupMarkPlaceholders();
-    }).not.toThrow();
-  });
-
-  it("should leave non-placeholder elements untouched", () => {
-    const editorText = document.createElement("span");
-    editorText.dataset["slateString"] = "true";
-    editorText.textContent = "大変だ体現";
-    document.body.append(editorText);
-
-    cleanupMarkPlaceholders();
-
-    expect(editorText.textContent).toBe("大変だ体現");
-  });
-});
-
-describe("the zero-width placeholder character", () => {
-  it("should be the zero-width no-break space character", () => {
-    expect(ZWNBSP).toBe("﻿");
-    expect(ZWNBSP.codePointAt(0)).toBe(0xfe_ff);
   });
 });

@@ -57,6 +57,13 @@
     // oxfmt lowercases hex literals; the formatter wins over the linter here.
     "unicorn/number-literal-case": "off",
 
+    // TypeScript already carries the types; repeating them in JSDoc rots.
+    "jsdoc/require-param-type": "off",
+    "jsdoc/require-returns-type": "off",
+
+    // Shared DOM setup belongs at the top of a test file, not in every describe.
+    "vitest/require-top-level-describe": "off",
+
     // Boolean assertions stay exact: `toBe(true)` is stricter than `toBeTruthy()`.
     "vitest/prefer-to-be-truthy": "off",
     "vitest/prefer-to-be-falsy": "off",
@@ -88,7 +95,9 @@
       "files": ["src/**/*.test.ts"],
       "rules": {
         "max-lines-per-function": "off",
-        "max-nested-callbacks": "off"
+        "max-nested-callbacks": "off",
+        // Composition cycles are asserted in order, so the awaits must be serial.
+        "no-await-in-loop": "off"
       }
     }
   ],
