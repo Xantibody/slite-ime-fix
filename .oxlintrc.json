@@ -1,0 +1,116 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "import", "promise", "node", "vitest", "jsdoc"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error",
+    "pedantic": "error",
+    "perf": "error",
+    "style": "error",
+    "restriction": "error",
+    "nursery": "error"
+  },
+  "env": {
+    "browser": true,
+    "es2024": true
+  },
+  "rules": {
+    // Contradicts the ES-target / language features this project deliberately uses.
+    "oxc/no-async-await": "off",
+    "oxc/no-optional-chaining": "off",
+    "oxc/no-rest-spread-properties": "off",
+    "unicorn/no-null": "off",
+
+    // Undefined globals are already a type error; oxlint has no view of tsconfig `lib`.
+    "no-undef": "off",
+
+    // This project exports named symbols from every module on purpose.
+    "import/no-named-export": "off",
+    "import/prefer-default-export": "off",
+    "import/group-exports": "off",
+    "import/exports-last": "off",
+
+    // Pure formatting opinions that fight oxfmt or hurt readability here.
+    "one-var": "off",
+    "sort-keys": "off",
+    "sort-imports": "off",
+    "sort-vars": "off",
+    "capitalized-comments": "off",
+    "func-style": "off",
+    "id-length": "off",
+    "no-ternary": "off",
+    "no-magic-numbers": "off",
+    "no-undefined": "off",
+    "no-duplicate-imports": "off",
+    "init-declarations": "off",
+    "max-statements": "off",
+
+    // `void promise` is how this codebase marks intentionally un-awaited work.
+    "no-void": "off",
+
+    // Slate exposes `window.__EDITOR_REFS__`; the name is not ours to choose.
+    "no-underscore-dangle": "off",
+
+    // Extension entry points are bundled as IIFEs, where top-level await is illegal.
+    "unicorn/prefer-top-level-await": "off",
+
+    // oxfmt lowercases hex literals; the formatter wins over the linter here.
+    "unicorn/number-literal-case": "off",
+
+    // TypeScript already carries the types; repeating them in JSDoc rots.
+    "jsdoc/require-param-type": "off",
+    "jsdoc/require-returns-type": "off",
+
+    // Shared DOM setup belongs at the top of a test file, not in every describe.
+    "vitest/require-top-level-describe": "off",
+
+    // Boolean assertions stay exact: `toBe(true)` is stricter than `toBeTruthy()`.
+    "vitest/prefer-to-be-truthy": "off",
+    "vitest/prefer-to-be-falsy": "off",
+    "vitest/prefer-strict-boolean-matchers": "off",
+
+    // Test-suite ergonomics: hooks, plain-string titles and explicit imports are wanted.
+    "vitest/no-hooks": "off",
+    "vitest/require-hook": "off",
+    "vitest/require-test-timeout": "off",
+    "vitest/prefer-expect-assertions": "off",
+    "vitest/valid-title": "off",
+    "vitest/prefer-importing-vitest-globals": "off",
+    "vitest/no-importing-vitest-globals": "off"
+  },
+  "overrides": [
+    {
+      "files": ["scripts/**/*.ts", "e2e/**/*.ts", "vitest.config.ts"],
+      "rules": {
+        // Build and e2e tooling runs in Node, synchronously, and reaches into src/.
+        "node/no-sync": "off",
+        "node/no-top-level-await": "off",
+        "node/no-process-env": "off",
+        "import/no-nodejs-modules": "off",
+        "import/no-relative-parent-imports": "off",
+        "import/no-default-export": "off",
+        "unicorn/import-style": "off",
+        "unicorn/no-process-exit": "off",
+        "no-await-in-loop": "off"
+      }
+    },
+    {
+      "files": ["e2e/**/*.js"],
+      "rules": {
+        // agent-browser evaluates this as a classic script inside the page.
+        "import/unambiguous": "off",
+        "no-implicit-globals": "off"
+      }
+    },
+    {
+      "files": ["src/**/*.test.ts"],
+      "rules": {
+        "max-lines-per-function": "off",
+        "max-nested-callbacks": "off",
+        // Composition cycles are asserted in order, so the awaits must be serial.
+        "no-await-in-loop": "off"
+      }
+    }
+  ],
+  "ignorePatterns": ["dist/**", "sample/**", "node_modules/**"]
+}

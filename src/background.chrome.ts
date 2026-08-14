@@ -1,7 +1,9 @@
 // Enable action icon only on Slite pages (Chrome version)
+import { EMACS_KEYBIND_STORAGE_KEY } from "./extension-api.ts";
+
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.action.disable();
-  chrome.storage.local.set({ emacsKeybindEnabled: false });
+  void chrome.action.disable();
+  void chrome.storage.local.set({ [EMACS_KEYBIND_STORAGE_KEY]: false });
 
   chrome.declarativeContent.onPageChanged.removeRules(undefined, () => {
     chrome.declarativeContent.onPageChanged.addRules([

@@ -33,12 +33,14 @@
             nodejs_22
             pnpm
             oxlint
+            typescript-go
+            agent-browser
             treefmtEval.config.build.wrapper
           ];
 
           shellHook = ''
             echo "Slite IME Fix dev environment"
-            echo "Commands: pnpm test, oxlint, treefmt"
+            echo "Commands: pnpm test, oxlint, tsgo --noEmit, treefmt, agent-browser"
           '';
         };
       }
