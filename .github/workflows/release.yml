@@ -26,6 +26,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Type check
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
       - name: Run tests
         run: pnpm test:run
 
